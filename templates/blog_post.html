@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Welcome to my Blog.</h1>
+    
+    <hr/>
+
+    {% if posts|length == 0 %}
+    <p>Start your story. Press 'Add Post' above!</p>
+    {% else %}
+            {% for post in posts %}
+            <strong>
+                <a href="/single_post?id={{post.id}}"> {{post.title}}</a>
+            </strong>
+            <ul>
+            <li>{{post.body}}</li>
+            </ul>
+            <hr>
+
+            {% endfor %}
+        <!--<p>Task that we finished {{done}}</p> -->
+    {% endif %}
+    
+{% endblock %}
