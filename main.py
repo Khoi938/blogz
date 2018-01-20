@@ -10,6 +10,7 @@ app.config['SQLALCHEMY_ECHO'] = True
 
 database = SQLAlchemy(app)
 
+
 class Blog(database.Model):
     id = database.Column(database.Integer, primary_key = True)
     title = database.Column(database.String(100))
@@ -55,6 +56,7 @@ def single():
     stuff = Blog.query.get(post_id)
     return render_template('single_post.html', title = stuff.title, body = stuff.body)
 
-
 if __name__ == '__main__':
     app.run()
+
+
