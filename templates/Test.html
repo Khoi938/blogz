@@ -1,4 +1,40 @@
-{% extends 'base.html' %}
+<!doctype html>
+<html>
+    <head>
+        <style>
+            .navbar{position: fixed;
+                    overflow: hidden;
+                    background-color: rgb(252, 249, 249);
+                    top:0;
+                    width: 100%;
+                    color:rgb(104, 5, 2);
+                    font-size: 230%;
+                    opacity: 0.8}
+            #sp{text-align: center}
+            body{padding-top: 40px}
+            button{background-color: rgb(139, 253, 183)}
+            form,h1,ul{padding-left: 20px }
+            a{padding-left: 35px}
+            label{color: red}
+        </style>
+        <title>{{top}}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+<body>
+        <header class='navbar'>
+                <a href='/blog'><button>Main Page</button></a>
+                {% if username|length > 3 %}
+                <a href="/newpost"><button>Add Post</button></a>
+                <form action="/logout" method="post">
+                    <button>Logout</button>
+                </form>
+                {% else %}
+                <a href='/signup'><button>Register</button></a>
+                {% endif %}
+        </header>
+
+    {% block content %}
+    {% extends 'base.html %}
 {% block content %}
         <h1>User Info</h1>
         <form action="/signup", method="post">
@@ -12,7 +48,7 @@
                 <td><label for="password">Password:</label></td>
                 <td><input type="password" id="stuff" name="password"></td>
                 <td><label for="username"><span class="color">{{shortPW}}</span></label></td>
-            </tr>   
+            </tr>
             <tr>
                 <td><label for="confirm">Confirm P/W:</label></td>
                 <td><input type="password" id="stuff" name="passwordC"></td>
@@ -35,3 +71,7 @@
             
         </form>
 {% endblock %}
+    {% endblock %}
+
+</body>
+</html>

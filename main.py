@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -9,6 +9,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:123456@localhost:
 app.config['SQLALCHEMY_ECHO'] = True
 
 database = SQLAlchemy(app)
+app.secret_key = 'secretkey'
 
 
 class Blog(database.Model):
@@ -37,35 +38,64 @@ class User(database.Model):
         self.gender = gender
 
 
-
-
-
 @app.route('/blog', methods=['POST', 'GET'])
 def index():  
     all_posts = Blog.query.all()
     all_posts.reverse()
-    return render_template('blog_post.html',top = 'My Blog.', posts = all_posts)
+    return render_template('blog_post.html',top = 'Home Page', posts = all_posts)
 
 @app.route('/signup', methods = ['POST','GET'])
 def signup():
-    if methods == 'POST':
+    if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if len(password) < 3 or len username < 3:
-            return redirect('/signup')
+        passwordC = request.form['passwordC']
         email = request.form['email']
-        gender = request.form['gender']
+        user_object = User.query.filter_by(username = username).first()
+        
+        if username == '' or password == '' or passwordC == '':
+            return render_template('signup.html', invalid = 'Username and/or Password is missing.', email = email)
+        if len(username) < 3:
+            return render_template('signup.html', invalid = 'Please make your username longer', email = email)
+        if username.isalnum() == False:
+            return render_template('signup.html', invalid = 'Invalid Character!!', email = email)
+        if user_object != None:
+            return render_template('signup.html', invalid = 'Username is taken.', email = email)
+        if len(password) < 3:
+            return render_template('signup.html', shortPW = 'Please make your password longer.', email = email)
+        if password != passwordC:
+            return render_template('signup.html', invalid = "Password doesn't match", email = email)
 
+        gender = request.form['gender']
         userObject = User(username, password, email, gender)
         database.session.add(userObject)
         database.session.commit()
+        session['username'] = username
+        return redirect('/newpost')
 
+    return render_template('signup.html', top = 'Registration')
 
-    return render_template('signup.html')
-
-@app.route('/login', methods = ['GET'])
+@app.route('/login', methods = ['POST','GET'])
 def login():
-    return render_template('login.html')
+    if request.method == 'POST':
+        #limit the number of attempt with session['attempt'] = 10
+        username = request.form['username']
+        password = request.form['password']
+        user_object = User.query.filter_by(username = username).first()
+        if user_object == None:
+            return render_template('login.html', top = 'Login', user = 'Username not found.')
+        if user_object.password == password:
+            session['username'] = username
+            return redirect('/newpost')
+        else:
+            return render_template('login.html', top = 'Login', wrong = 'Incorrect Password.',username = username)
+
+    return render_template('login.html', top = 'Login')
+
+@app.route('/logout', methods = ['GET'])
+def logout():
+    del session['username']
+    return redirect('/blog')
 
 @app.route('/newpost', methods = ['POST','GET'])
 def newpost():
