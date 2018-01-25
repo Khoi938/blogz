@@ -1,0 +1,40 @@
+{% extends 'base.html %}
+{% block content %}
+    <div id="leftmg" style='background-color:rgb(163, 201, 245)'>
+        <h1>User Info</h1>
+        <form action="/registration", method="post">
+        <table>
+            <tr>
+                <td><label for="username">Username:</label></td>
+                <td><input type="text" id="username" name="username" value=""></td>
+                <td><label for="username"><span class="color">{{username}}</span></label></td>
+            </tr>
+            <tr>
+                <td><label for="password">Password:</label></td>
+                <td><input type="password" id="stuff" name="password"></td>
+                <td><label for="username"><span class="color">{{password}}</span></label></td>
+            </tr>
+            <tr>
+                <td><label for="confirm">Confirm P/W:</label></td>
+                <td><input type="password" id="stuff" name="password"></td>
+            </tr>
+            <tr>
+                <td><label for="email">Email:</label></td>
+                <td><input type="text" id="stuff" name="email" value="{{}}"></td>
+                <td><label for="username"><span class="color">{{email}}</span></label></td>
+            </tr>
+        </table>
+            <label for="male">Male</label>
+            <input type="radio" name="gender"value="M">
+            <label for="female">Female</label>
+            <input type="radio" name="gender" value="F">
+            <label for="lgbt+">LGBT+</label>
+            <input type="radio" name="gender" value="Z">
+            <label for="lgbt+">Blank</label>
+            <input type="radio" name="gender" value="Blank">
+            <br>
+            <input type="submit" value="Submit">
+            
+        </form>
+    </div>
+{% endblock %}
