@@ -1,16 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Welcome to my Blog.</h1>
+    <h1>Free Forum</h1>
     
     <hr/>
 
     {% if posts|length == 0 %}
-    <p>Start your story. Press 'Add Post' above!</p>
+    <p>Nothing here Squeaky Clean!!</p>
     {% else %}
             {% for post in posts %}
             <strong>
-                <a href="/single_post?id={{post.id}}"> {{post.title}}</a>
+                <a href="/blog?username={{post.owner_id}}" > {{post.owner_id}}</a>:
+
+                <a href="/newpost?id={{post.id}}"> {{post.title}}</a>
             </strong>
             <ul>
             <li>{{post.body}}</li>

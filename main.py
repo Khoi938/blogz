@@ -16,7 +16,9 @@ class Blog(database.Model):
     id = database.Column(database.Integer, primary_key = True)
     title = database.Column(database.String(100))
     body = database.Column(database.Text)
-    owner_id = database.Column(database.Integer, database.ForeignKey('user.id'))
+    owner_id = database.Column(database.String(15), database.ForeignKey('user.username'))
+    #owner_id = database.Column(database.Integer, database.ForeignKey('user.id'))
+
 
     def __init__(self,title,body,user):
         self.title = title
@@ -37,9 +39,30 @@ class User(database.Model):
         self.password = password
         self.gender = gender
 
+@app.before_request
+def authenticate():
+    public = ['blog', 'signup','login','index']
+    if request.endpoint not in public and 'username' not in session:
+        session['authenticate']='Please login first.'
+        return redirect('/login')
+
+@app.route('/', methods = ['GET'])
+def index():
+    user = User.query.all()
+    return render_template('index.html', users = user, top = 'User List')
 
 @app.route('/blog', methods=['POST', 'GET'])
-def index():  
+def blog():
+    if 'authenticate'in session:  
+        del session['authenticate']
+    
+    if request.args.get('username') != None: 
+        username = request.args.get('username')
+        posts = Blog.query.filter_by(owner_id=username).all()
+        posts.reverse()
+        return render_template('singleUser.html', top = 'Individual Post', 
+        username = username, posts = posts)
+
     all_posts = Blog.query.all()
     all_posts.reverse()
     return render_template('blog_post.html',top = 'Home Page', posts = all_posts)
@@ -73,6 +96,8 @@ def signup():
         session['username'] = username
         return redirect('/newpost')
 
+    if 'authenticate'in session:  
+        del session['authenticate']
     return render_template('signup.html', top = 'Registration')
 
 @app.route('/login', methods = ['POST','GET'])
@@ -89,6 +114,9 @@ def login():
             return redirect('/newpost')
         else:
             return render_template('login.html', top = 'Login', wrong = 'Incorrect Password.',username = username)
+    if session.get('authenticate') != None:
+        verify = session.get('authenticate')
+        return render_template('login.html', top = 'Login', authenticate = verify)
 
     return render_template('login.html', top = 'Login')
 
@@ -97,30 +125,29 @@ def logout():
     del session['username']
     return redirect('/blog')
 
+
 @app.route('/newpost', methods = ['POST','GET'])
 def newpost():
-    return render_template('new_post.html')
-
-@app.route('/single_post', methods = ['POST','GET'])
-def single():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
         if len(title) == 0 or len(body) == 0:
-            return render_template('new_post.html',body = body, title = title, 
-            top = 'New Post!', message = 'Fill in all Boxes!')
-        user = user.query.filter_by(user = session['email']).first()
-        new_post = Blog(title,body,user)
+            return render_template('newpost.html',body = body, title = title, 
+            top = 'New Post', message = 'A post need a Title and Message')
+        user_object = User.query.filter_by(username = session['username']).first()
+        new_post = Blog(title,body,user_object)
         database.session.add(new_post)
         database.session.commit() 
         htmlSTR = str(new_post.id)
         
-        return redirect('/single_post?id='+htmlSTR)
+        return redirect('/newpost?id='+htmlSTR)
         
+    if request.args.get('id') != None: 
+        post_id = int(request.args.get('id'))
+        new_post = Blog.query.get(post_id)
+        return render_template('single_post.html', title = new_post.title, body = new_post.body)
 
-    post_id = int(request.args.get('id'))
-    new_post = Blog.query.get(post_id)
-    return render_template('single_post.html', title = new_post.title, body = new_post.body)
+    return render_template('newpost.html')
 
 if __name__ == '__main__':
     app.run()

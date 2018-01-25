@@ -10,13 +10,12 @@
                     left: 0px;
                     width: 100%;
                     color:rgb(104, 5, 2);
-                    font-size: 230%;
+                    font-size: 200%;
                     opacity: 0.8}
             body{background-color: rgb(147, 247, 247);
                 padding-top: 40px}
             button{background-color: rgb(139, 253, 183)}
             form,h1,ul{padding-left: 20px }
-            a{padding-left: 35px}
             .color{color: red}
         </style>
         <title>{{top}}</title>
@@ -24,15 +23,19 @@
     </head>
 <body>
     <header class='navbar'>
-        <a href='/blog'><button>Main Page</button></a>
+        <span style="padding-left:30px">
+        <a href='/blog'><button>Forum</button></a>
+        <a href='/'><button>Registered User</button></a>
         {% if session['username']|length > 3 %}
         <a href="/newpost"><button>Add Post</button></a>
         <a href="/logout"><button>Logout</button></a>
+        <span style="font-size:70%">{{session['username']}}</span>
         {% else %}
         <a href='/signup'><button>Create Account</button></a>
         <a href='/login'><button>Login</button></a>
         {% endif %}
-        <br>
+        <span class="color">{{authenticate}}</span>
+        </span>
 
 </header>
 
