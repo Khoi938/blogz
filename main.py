@@ -17,13 +17,15 @@ class Blog(database.Model):
     title = database.Column(database.String(100))
     body = database.Column(database.Text)
     owner_id = database.Column(database.String(15), database.ForeignKey('user.username'))
+    reply = database.Column(database.Boolean)
     #owner_id = database.Column(database.Integer, database.ForeignKey('user.id'))
 
 
-    def __init__(self,title,body,user):
+    def __init__(self,title,body,user, reply):
         self.title = title
         self.body = body
         self.owner = user
+        self.reply = reply
 
 class User(database.Model):
     id = database.Column(database.Integer, primary_key = True)
@@ -55,6 +57,18 @@ def index():
 def blog():
     if 'authenticate'in session:  
         del session['authenticate']
+
+    if request.method == 'POST':
+        title = request.form['title']
+        body = request.form['reply']
+        user_object = User.query.filter_by(username = session['username']).first()
+        new_post = Blog(title,body,user_object,True)
+        database.session.add(new_post)
+        database.session.commit() 
+        
+        
+        return redirect('/blog')
+        
     
     if request.args.get('username') != None: 
         username = request.args.get('username')
@@ -63,9 +77,28 @@ def blog():
         return render_template('singleUser.html', top = 'Individual Post', 
         username = username, posts = posts)
 
+    if request.args.get('replyid') != None:
+        post_id = int(request.args.get('replyid'))
+        all_posts = Blog.query.all()
+        all_posts.reverse()
+        post_object = Blog.query.filter_by(id = post_id).first()
+
+        login = ''
+        if 'username' in session:
+            login = session['username']
+
+        return render_template('blog_post.html',top = 'Reply', 
+        posts = all_posts, login = login, reply_post = post_object)
+
+
+    login = ''
+    if 'username' in session:
+        login = session['username']
+
     all_posts = Blog.query.all()
     all_posts.reverse()
-    return render_template('blog_post.html',top = 'Home Page', posts = all_posts)
+    return render_template('blog_post.html',top = 'Home Page', 
+    posts = all_posts, login = login, reply_post = '')
 
 @app.route('/signup', methods = ['POST','GET'])
 def signup():
@@ -135,12 +168,12 @@ def newpost():
             return render_template('newpost.html',body = body, title = title, 
             top = 'New Post', message = 'A post need a Title and Message')
         user_object = User.query.filter_by(username = session['username']).first()
-        new_post = Blog(title,body,user_object)
+        new_post = Blog(title,body,user_object, False)
         database.session.add(new_post)
         database.session.commit() 
         htmlSTR = str(new_post.id)
         
-        return redirect('/newpost?id='+htmlSTR)
+        return redirect('/blog')
         
     if request.args.get('id') != None: 
         post_id = int(request.args.get('id'))

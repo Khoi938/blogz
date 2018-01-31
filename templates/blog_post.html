@@ -11,13 +11,32 @@
             {% for post in posts %}
             <strong>
                 <a href="/blog?username={{post.owner_id}}" > {{post.owner_id}}</a>:
+                {{post.title}}
 
-                <a href="/newpost?id={{post.id}}"> {{post.title}}</a>
+                <!-- <a href="/newpost?id={{post.id}}"> {{post.title}}</a> -->
             </strong>
-            <ul>
+            <ul style="padding-left:28px">
             <li>{{post.body}}</li>
-            </ul>
+            </ul>   
+            
+            {% if login|length > 3 %}
+             <a href='/blog?replyid={{post.id}}' style="padding-left:23px ;font-size:85%; font-weight:Bold" >
+                reply</a> 
+            {% endif %}
+            {% if reply_post.id == post.id %}
+
+                <form action="/blog" method="post" style="padding-left:28px">
+                    <textarea name="reply" rows="4" cols="40" placeholder="Be civil"></textarea>
+                    <br>
+                    <span style="padding-left:230px">
+                    <input type="submit" value="Post">
+                    </span>
+                    <input type="hidden" name="title" value="{{post.title}}">
+                </form>
+
+            {% endif %}
             <hr>
+         
 
             {% endfor %}
         <!--<p>Task that we finished {{done}}</p> -->
