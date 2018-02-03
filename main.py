@@ -46,7 +46,8 @@ def authenticate():
     public = ['blog', 'signup','login','index']
     if request.endpoint not in public and 'username' not in session:
         session['authenticate']='Please login first.'
-        return redirect('/login')
+        verify = session.get('authenticate')
+        return render_template('login.html', top = 'Error', authenticate = verify)
 
 @app.route('/', methods = ['GET'])
 def index():
@@ -147,9 +148,6 @@ def login():
             return redirect('/newpost')
         else:
             return render_template('login.html', top = 'Login', wrong = 'Incorrect Password.',username = username)
-    if session.get('authenticate') != None:
-        verify = session.get('authenticate')
-        return render_template('login.html', top = 'Login', authenticate = verify)
 
     return render_template('login.html', top = 'Login')
 
